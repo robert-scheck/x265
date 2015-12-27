@@ -1,7 +1,7 @@
 Summary: H.265/HEVC encoder
 Name: x265
 Version: 1.8
-Release: 1%{?dist}
+Release: 3%{?dist}
 URL: http://x265.org/
 Source0: http://ftp.videolan.org/pub/videolan/x265/x265_%{version}.tar.gz
 # link test binaries with shared library
@@ -62,7 +62,9 @@ make %{?_smp_mflags}
 %install
 make DESTDIR=%{buildroot} install
 rm %{buildroot}%{_libdir}/libx265.a
+%if 0%{?fedora} || 0%{?rhel} >= 7
 install -Dpm644 COPYING %{buildroot}%{_pkgdocdir}/COPYING
+%endif
 
 %check
 LD_LIBRARY_PATH=%{buildroot}%{_libdir} test/TestBench || :
@@ -75,8 +77,12 @@ LD_LIBRARY_PATH=%{buildroot}%{_libdir} test/TestBench || :
 %{_bindir}/x265
 
 %files libs
+%if 0%{?fedora} || 0%{?rhel} >= 7
 %dir %{_pkgdocdir}
 %{_pkgdocdir}/COPYING
+%else
+%doc COPYING
+%endif
 %{_libdir}/libx265.so.68
 
 %files devel
@@ -87,6 +93,9 @@ LD_LIBRARY_PATH=%{buildroot}%{_libdir} test/TestBench || :
 %{_libdir}/pkgconfig/x265.pc
 
 %changelog
+* Sun Dec 27 2015 Robert Scheck <robert@fedoraproject.org> 1.8-3
+- minor spec file tweaks to allow building for RHEL 6
+
 * Sun Oct 25 2015 Dominik Mierzejewski <rpm@greysector.net> 1.8-2
 - fix building as PIC
 - update SO version in file list
